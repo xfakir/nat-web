@@ -2,10 +2,15 @@
   <div class="home">
     <div class="main">
       <div class="info">
-        <div class="router-info" v-if="show === 0">
+        <div class="router-info" v-if="isRouterConnect && show === 0">
           <div class="interface">
             <div style="text-align: left">
               <span>Interface Configure</span>
+              <div style="float: right">
+                <el-button type="primary" size="small" @click="disconnect"
+                  >断开连接</el-button
+                >
+              </div>
             </div>
             <el-table
               :data="interfaceList"
@@ -16,18 +21,17 @@
             >
               <el-table-column label="interface" width="80">
                 <template scope="scope">
-                  <span>{{ scope.row.interface }}</span>
+                  <span>{{ scope.row.name }}</span>
                 </template>
               </el-table-column>
               <el-table-column label="ip" width="100">
                 <template scope="scope">
                   <el-input
                     size="small"
-                    v-model="scope.row.ip"
+                    v-model="scope.row.address"
                     placeholder="请输入内容"
-                    @change="handleEdit(scope.$index, scope.row)"
                   ></el-input>
-                  <span>{{ scope.row.ip }}</span>
+                  <span>{{ scope.row.address }}</span>
                 </template>
               </el-table-column>
               <el-table-column label="netmask" width="100">
@@ -36,7 +40,6 @@
                     size="small"
                     v-model="scope.row.netmask"
                     placeholder="请输入内容"
-                    @change="handleEdit(scope.$index, scope.row)"
                   ></el-input>
                   <span>{{ scope.row.netmask }}</span>
                 </template>
@@ -44,12 +47,11 @@
               <el-table-column label="On/Off" width="70">
                 <template slot-scope="scope">
                   <el-switch
-                    v-model="scope.row.status"
-                    :active-value="0"
-                    :inactive-value="1"
+                    v-model="scope.row.state"
+                    active-value="1"
+                    inactive-value="0"
                     active-color="#13ce66"
                     inactive-color="#ff4949"
-                    @change="changeSwitch(scope.row)"
                   />
                 </template>
               </el-table-column>
@@ -58,7 +60,7 @@
                   <el-button
                     size="small"
                     type="primary"
-                    @click="handleDelete(scope.$index, scope.row)"
+                    @click="handleEdit(scope.$index)"
                     >提交</el-button
                   >
                 </template>
@@ -69,7 +71,7 @@
             <div style="text-align: left">
               <span>NAT Configure</span>
             </div>
-            <div style="padding: 3px">
+            <div style="padding: 3px;width: 420px">
               <el-form
                 label-position="left"
                 label-width="80px"
@@ -82,12 +84,53 @@
                 <el-form-item label="total">
                   <el-input v-model.number="natConfig.total"></el-input>
                 </el-form-item>
+                <el-form-item label="netmask">
+                  <el-input v-model="natConfig.netmask"></el-input>
+                </el-form-item>
+                <el-form-item label="inside">
+                  <el-radio-group v-model="natConfig.inside">
+                    <el-radio
+                      v-for="(radio, index) in radioArray"
+                      :label="radio.name"
+                      :disabled="radio.disable || insideArray[index]"
+                      :key="index"
+                    ></el-radio>
+                  </el-radio-group>
+                </el-form-item>
+                <el-form-item label="outside">
+                  <el-radio-group v-model="natConfig.outside">
+                    <el-radio
+                      v-for="(radio, index) in radioArray"
+                      :label="radio.name"
+                      :disabled="radio.disable || outsideArray[index]"
+                      :key="index"
+                    ></el-radio>
+                  </el-radio-group>
+                </el-form-item>
                 <el-form-item>
                   <el-button type="primary" @click="onSubmit">提交</el-button>
                 </el-form-item>
               </el-form>
             </div>
           </div>
+        </div>
+        <div v-else-if="!isRouterConnect && show === 0">
+          <el-form v-if="this.step === 1" :inline="true">
+            <el-form-item label="hostName">
+              <el-input v-model="hostName"></el-input>
+            </el-form-item>
+            <el-form-item>
+              <el-button type="primary" @click="connect">connect</el-button>
+            </el-form-item>
+          </el-form>
+          <el-form v-if="this.step === 2" :inline="true">
+            <el-form-item label="password">
+              <el-input v-model="password"></el-input>
+            </el-form-item>
+            <el-form-item>
+              <el-button type="primary" @click="sendPassword">send</el-button>
+            </el-form-item>
+          </el-form>
         </div>
         <div class="pc-info" v-else-if="show === 1 || show === 2 || show === 3">
           <div>
@@ -195,19 +238,6 @@
         </div>
       </div>
     </div>
-    <!--<el-button v-if="this.step === 1" type="primary" @click="connect"
-      >connect</el-button
-    >
-    <div v-else-if="this.step === 2">
-      username:<el-input v-model="username"></el-input>
-      <el-button type="primary" @click="sendUsername">send</el-button>
-    </div>
-    <div v-else-if="this.step === 3">
-      password:<el-input v-model="password"></el-input>
-      <el-button type="primary" @click="sendPassword"
-        >send</el-button
-      >
-    </div>-->
   </div>
 </template>
 
@@ -222,41 +252,42 @@ export default {
       step: 1,
       username: "",
       password: "",
-      interfaceList: [
-        {
-          interface: "f0/0",
-          ip: "10.0.0.1",
-          netmask: "10.0.0.0",
-          status: 1
-        },
-        {
-          interface: "f0/1",
-          ip: "10.0.0.2",
-          netmask: "10.0.0.0",
-          status: 0
-        },
-        {
-          interface: "f0/1",
-          ip: "10.0.0.2",
-          netmask: "10.0.0.0",
-          status: 1
-        },
-        {
-          interface: "f0/1",
-          ip: "10.0.0.2",
-          netmask: "10.0.0.0",
-          status: 0
-        }
-      ],
+      interfaceList: [],
       inputStatus: "none",
       natConfig: {
         network: "",
-        total: 0
+        total: 0,
+        netmask: "",
+        inside: "",
+        outside: ""
       },
       show: -1,
       pingIp: "",
       active: -1,
-      showPC: 0
+      showPC: 0,
+      isRouterConnect: false,
+      hostName: "",
+      radioArray: [
+        {
+          name: "f0/0",
+          disable: false
+        },
+        {
+          name: "f0/1",
+          disable: false
+        },
+        {
+          name: "s0/0/0/0",
+          disable: false
+        },
+        {
+          name: "s0/0/0/1",
+          disable: false
+        }
+      ],
+      insideArray: [false, false, false, false],
+      outsideArray: [false, false, false, false],
+      interfaceMap: new Map()
     };
   },
   /*created() {
@@ -266,42 +297,93 @@ export default {
   },*/
   components: {},
   methods: {
-    connect() {
-      this.axios.get("/command/connect");
+    async connect() {
+      await this.axios.get("/command/connectRouter", {
+        params: {
+          hostName: this.hostName,
+          port: 23
+        }
+      });
       this.step = 2;
     },
-    sendUsername() {
-      this.axios.get("/command/username", {
-        params: {
-          username: this.username
-        }
-      });
-      this.step = 3;
-    },
-    sendPassword() {
-      this.axios.get("/command/password", {
-        params: {
-          password: this.password
-        }
-      });
+    async sendPassword() {
+      await this.axios
+        .get("/command/password", {
+          params: {
+            password: this.password
+          }
+        })
+        .then(response => {
+          if (response.data.code === 200) {
+            const list = response.data.data;
+            this.interfaceList = list;
+            this.isRouterConnect = true;
+            for (let i = 0; i < list.length; i++) {
+              this.radioArray[i].disable = list[i].state === "0";
+              this.interfaceMap.set(list[i].name, i);
+            }
+            console.log(this.radioArray);
+          }
+        });
     },
     handleCurrentChange(row, event, column) {
       console.log(row, event, column, event.currentTarget);
     },
-    handleEdit(index, row) {
-      console.log(index, row);
+    handleEdit(index) {
+      this.axios
+        .post("/command/configInterface", this.interfaceList[index])
+        .then(response => {
+          if (response.data.code === 200) {
+            this.$message({
+              message: "修改成功",
+              type: "success"
+            });
+          }
+        });
+      this.radioArray[index].disable = this.interfaceList[index].state === "0";
     },
-    handleDelete(index, row) {
-      console.log(index, row);
+    onSubmit() {
+      console.log(this.natConfig);
+      this.axios.post("/command/configNat", this.natConfig).then(response => {
+        if (response.data.code === 200) {
+          this.$message({
+            message: "配置成功",
+            type: "success"
+          });
+        }
+      });
     },
-    changeSwitch(row) {
-      // eslint-disable-next-line no-unused-vars
-      const data = {
-        id: row.id,
-        status: row.status
-      };
+    disconnect() {
+      this.axios.post("/command/disconnect").then(response => {
+        if (response.data.code === 200) {
+          this.$message({
+            message: "已断开连接",
+            type: "success"
+          });
+          this.isRouterConnect = false;
+          this.step = 0;
+          this.hostName = "";
+          this.password = "";
+        }
+      });
     },
-    onSubmit() {},
+    clickInside(val) {
+      console.log(this.interfaceMap);
+      for (let i = 0; i < this.outsideArray.length; i++) {
+        this.outsideArray[i] = false;
+      }
+      const index = this.interfaceMap.get(val);
+      console.log(index);
+      this.outsideArray[index] = true;
+      console.log(this.outsideArray);
+    },
+    clickOutside(val) {
+      for (let i = 0; i < this.insideArray.length; i++) {
+        this.insideArray[i] = false;
+      }
+      const index = this.interfaceMap.get(val);
+      this.insideArray[index] = true;
+    },
     mouseOver(index) {
       //改变样式
       //this.active} = "cursor: pointer";
@@ -323,29 +405,30 @@ export default {
 
 <style>
 .home {
-  margin-top: 80px;
+  margin-top: 20px;
   margin-left: 250px;
 }
 .main {
   width: 1000px;
-  height: 550px;
+  height: 660px;
   border: #2c3e50 1px solid;
 }
 .info {
   width: 450px;
-  height: 500px;
+  height: 640px;
   float: left;
   border: #2c3e50 1px solid;
   margin-left: 60px;
-  margin-top: 25px;
+  margin-top: 10px;
 }
 .topology {
   width: 400px;
-  height: 500px;
+  height: 590px;
   float: left;
   border: #2c3e50 1px solid;
   margin-left: 40px;
-  margin-top: 25px;
+  margin-top: 10px;
+  padding-top: 50px;
 }
 .floor {
   height: 50px;
