@@ -88,7 +88,10 @@
                   <el-input v-model="natConfig.netmask"></el-input>
                 </el-form-item>
                 <el-form-item label="inside">
-                  <el-radio-group v-model="natConfig.inside">
+                  <el-radio-group
+                    v-model="natConfig.inside"
+                    @change="clickInside"
+                  >
                     <el-radio
                       v-for="(radio, index) in radioArray"
                       :label="radio.name"
@@ -98,8 +101,11 @@
                   </el-radio-group>
                 </el-form-item>
                 <el-form-item label="outside">
-                  <el-radio-group v-model="natConfig.outside">
-                    <el-radio
+                  <el-radio-group
+                    v-model="natConfig.outside"
+                    @change="clickOutside"
+                  >
+                   <el-radio
                       v-for="(radio, index) in radioArray"
                       :label="radio.name"
                       :disabled="radio.disable || outsideArray[index]"
@@ -368,14 +374,12 @@ export default {
       });
     },
     clickInside(val) {
-      console.log(this.interfaceMap);
       for (let i = 0; i < this.outsideArray.length; i++) {
         this.outsideArray[i] = false;
       }
       const index = this.interfaceMap.get(val);
-      console.log(index);
       this.outsideArray[index] = true;
-      console.log(this.outsideArray);
+      this.$forceUpdate();
     },
     clickOutside(val) {
       for (let i = 0; i < this.insideArray.length; i++) {
@@ -383,6 +387,7 @@ export default {
       }
       const index = this.interfaceMap.get(val);
       this.insideArray[index] = true;
+      this.$forceUpdate();
     },
     mouseOver(index) {
       //改变样式
