@@ -19,7 +19,7 @@
               highlight-current-row
               @row-click="handleCurrentChange"
             >
-              <el-table-column label="interface" width="80">
+              <el-table-column label="interface" width="120">
                 <template scope="scope">
                   <span>{{ scope.row.name }}</span>
                 </template>
@@ -67,7 +67,7 @@
               </el-table-column>
             </el-table>
           </div>
-          <div class="nat">
+          <div class="nat" v-if="routerNum === 0">
             <div style="text-align: left">
               <span>NAT Configure</span>
             </div>
@@ -88,36 +88,40 @@
                   <el-input v-model="natConfig.netmask"></el-input>
                 </el-form-item>
                 <el-form-item label="inside">
-                  <el-radio-group
-                    v-model="natConfig.inside"
-                    @change="clickInside"
-                  >
-                    <el-radio
+                  <el-checkbox-group v-model="natConfig.inside">
+                    <el-checkbox
                       v-for="(radio, index) in radioArray"
                       :label="radio.name"
-                      :disabled="radio.disable || insideArray[index]"
+                      :disabled="radio.disable"
                       :key="index"
-                    ></el-radio>
-                  </el-radio-group>
+                    ></el-checkbox>
+                  </el-checkbox-group>
                 </el-form-item>
                 <el-form-item label="outside">
-                  <el-radio-group
-                    v-model="natConfig.outside"
-                    @change="clickOutside"
-                  >
-                   <el-radio
+                  <el-checkbox-group v-model="natConfig.outside">
+                    <el-checkbox
                       v-for="(radio, index) in radioArray"
                       :label="radio.name"
-                      :disabled="radio.disable || outsideArray[index]"
+                      :disabled="radio.disable"
                       :key="index"
-                    ></el-radio>
-                  </el-radio-group>
+                    ></el-checkbox>
+                  </el-checkbox-group>
                 </el-form-item>
                 <el-form-item>
                   <el-button type="primary" @click="onSubmit">提交</el-button>
                 </el-form-item>
               </el-form>
             </div>
+          </div>
+          <div class="ping-box" v-else>
+            <el-form :inline="true">
+              <el-form-item label="ping">
+                <el-input v-model="pingIp"></el-input>
+              </el-form-item>
+              <el-form-item>
+                <el-button type="primary" @click="onSubmit">ping</el-button>
+              </el-form-item>
+            </el-form>
           </div>
         </div>
         <div v-else-if="!isRouterConnect && show === 0">
@@ -143,23 +147,13 @@
             <span>PC{{ showPC }} Info</span>
           </div>
           <div class="info-box">
-            <span>IP: 10.0.0.2</span>
+            <span>IP: 10.1.0.{{ show + 1 }}</span>
           </div>
           <div class="info-box">
-            <span>netmask: 255.0.0.0</span>
+            <span>netmask: 255.255.0.0</span>
           </div>
           <div class="info-box">
-            <span>gateway: 10.0.0.1</span>
-          </div>
-          <div class="ping-box">
-            <el-form :inline="true">
-              <el-form-item label="ping">
-                <el-input v-model="pingIp"></el-input>
-              </el-form-item>
-              <el-form-item>
-                <el-button type="primary" @click="onSubmit">ping</el-button>
-              </el-form-item>
-            </el-form>
+            <span>gateway: 10.1.0.1</span>
           </div>
         </div>
       </div>
@@ -189,14 +183,33 @@
           ></el-image>
         </div>
         <div class="floor">
-          <el-image
-            :src="require('../assets/tuoputu_luyouqi.png')"
-            style="width: 50px;height: 50px;"
-            @mouseover="mouseOver(0)"
-            :style="active === 0 ? 'cursor: pointer' : ''"
-            @mouseleave="mouseLeave"
-            @click="showCard(0)"
-          ></el-image>
+          <div style="width: 40%;height: 100%;float: left"></div>
+          <div style="width: 20%;height: 100%;float: left">
+            <el-image
+              :src="require('../assets/tuoputu_luyouqi.png')"
+              style="width: 50px;height: 50px;"
+              @mouseover="mouseOver(0)"
+              :style="active === 0 ? 'cursor: pointer' : ''"
+              @mouseleave="mouseLeave"
+              @click="showCard(0, 0)"
+            ></el-image>
+          </div>
+          <div style="width: 20%;height: 100%;float: left">
+            <el-image
+              :src="require('../assets/5.png')"
+              style="width: 50px;height: 50px;"
+            ></el-image>
+          </div>
+          <div>
+            <el-image
+              :src="require('../assets/tuoputu_luyouqi.png')"
+              style="width: 50px;height: 50px;"
+              @mouseover="mouseOver(0)"
+              :style="active === 0 ? 'cursor: pointer' : ''"
+              @mouseleave="mouseLeave"
+              @click="showCard(0, 1)"
+            ></el-image>
+          </div>
         </div>
         <div class="floor">
           <el-image
@@ -264,8 +277,8 @@ export default {
         network: "",
         total: 0,
         netmask: "",
-        inside: "",
-        outside: ""
+        inside: [],
+        outside: []
       },
       show: -1,
       pingIp: "",
@@ -283,17 +296,18 @@ export default {
           disable: false
         },
         {
-          name: "s0/0/0/0",
+          name: "s0/0/0",
           disable: false
         },
         {
-          name: "s0/0/0/1",
+          name: "s0/0/1",
           disable: false
         }
       ],
       insideArray: [false, false, false, false],
       outsideArray: [false, false, false, false],
-      interfaceMap: new Map()
+      interfaceMap: new Map(),
+      routerNum: -1
     };
   },
   /*created() {
@@ -367,9 +381,10 @@ export default {
             type: "success"
           });
           this.isRouterConnect = false;
-          this.step = 0;
+          this.step = 1;
           this.hostName = "";
           this.password = "";
+          this.show = -1;
         }
       });
     },
@@ -398,8 +413,11 @@ export default {
       //清空样式
       this.active = -1;
     },
-    showCard(index) {
+    showCard(index, routerNum) {
       this.show = index;
+      if (index === 0) {
+        this.routerNum = routerNum;
+      }
       if (index !== 0) {
         this.showPC = index;
       }
@@ -419,11 +437,11 @@ export default {
   border: #2c3e50 1px solid;
 }
 .info {
-  width: 450px;
+  width: 500px;
   height: 640px;
   float: left;
   border: #2c3e50 1px solid;
-  margin-left: 60px;
+  margin-left: 10px;
   margin-top: 10px;
 }
 .topology {
@@ -438,9 +456,8 @@ export default {
 .floor {
   height: 50px;
 }
-
 .interface {
-  width: 430px;
+  width: 480px;
   height: 280px;
   margin-top: 10px;
   margin-left: 10px;
@@ -451,6 +468,13 @@ export default {
   height: 180px;
   margin-top: 30px;
   margin-left: 10px;
+}
+.ping-box {
+  width: 380px;
+  height: 180px;
+  margin-top: 30px;
+  margin-left: 10px;
+  padding-top: 50px;
 }
 .tb-edit .el-input {
   display: none;
