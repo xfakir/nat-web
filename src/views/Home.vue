@@ -119,7 +119,7 @@
                 <el-input v-model="pingIp"></el-input>
               </el-form-item>
               <el-form-item>
-                <el-button type="primary" @click="onSubmit">ping</el-button>
+                <el-button type="primary" @click="ping">ping</el-button>
               </el-form-item>
             </el-form>
           </div>
@@ -142,18 +142,24 @@
             </el-form-item>
           </el-form>
         </div>
-        <div class="pc-info" v-else-if="show === 1 || show === 2 || show === 3">
+        <div
+          class="pc-info"
+          v-else-if="show === 1 || show === 2 || show === 3 || show === 4"
+        >
           <div>
             <span>PC{{ showPC }} Info</span>
           </div>
           <div class="info-box">
-            <span>IP: 10.1.0.{{ show + 1 }}</span>
+            <span v-if="show !== 4">IP: 10.1.0.{{ show + 1 }}</span>
+            <span v-else>IP: 192.168.3.2</span>
           </div>
           <div class="info-box">
-            <span>netmask: 255.255.0.0</span>
+            <span v-if="show !== 4">netmask: 255.255.0.0</span>
+            <span v-else>netmask: 255.255.255.0</span>
           </div>
           <div class="info-box">
-            <span>gateway: 10.1.0.1</span>
+            <span v-if="show !== 4">gateway: 10.1.0.1</span>
+            <span v-else>gateway: 192.168.3.1</span>
           </div>
         </div>
       </div>
@@ -162,6 +168,10 @@
           <el-image
             :src="require('../assets/tuoputu_taishidiannao.png')"
             style="width: 50px;height: 50px;"
+            @mouseover="mouseOver(4)"
+            :style="active === 4 ? 'cursor: pointer' : ''"
+            @mouseleave="mouseLeave"
+            @click="showCard(4)"
           ></el-image>
         </div>
         <div class="floor">
@@ -421,6 +431,27 @@ export default {
       if (index !== 0) {
         this.showPC = index;
       }
+    },
+    async ping() {
+      await this.axios
+        .get("/command/ping", {
+          params: {
+            ip: this.pingIp
+          }
+        })
+        .then(response => {
+          if (response.data.code === 200) {
+            this.$message({
+              message: "success",
+              type: "success"
+            });
+          } else {
+            this.$message({
+              message: "error",
+              type: "error"
+            });
+          }
+        });
     }
   }
 };
