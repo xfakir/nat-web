@@ -167,7 +167,7 @@
         <div class="floor">
           <el-image
             :src="require('../assets/tuoputu_taishidiannao.png')"
-            style="width: 50px;height: 50px;"
+            style="width: 60px;height: 60px;"
             @mouseover="mouseOver(4)"
             :style="active === 4 ? 'cursor: pointer' : ''"
             @mouseleave="mouseLeave"
@@ -177,27 +177,27 @@
         <div class="floor">
           <el-image
             :src="require('../assets/1.png')"
-            style="width: 50px;height: 50px;"
+            style="width: 60px;height: 60px;"
           ></el-image>
         </div>
         <div class="floor">
           <el-image
-            :src="require('../assets/tuoputu_luyouqi.png')"
-            style="width: 50px;height: 50px;"
+            :src="require('../assets/router.png')"
+            style="width: 60px;height: 60px;"
           ></el-image>
         </div>
         <div class="floor">
           <el-image
             :src="require('../assets/2.png')"
-            style="width: 50px;height: 50px;"
+            style="width: 60px;height: 60px;"
           ></el-image>
         </div>
         <div class="floor">
           <div style="width: 40%;height: 100%;float: left"></div>
           <div style="width: 20%;height: 100%;float: left">
             <el-image
-              :src="require('../assets/tuoputu_luyouqi.png')"
-              style="width: 50px;height: 50px;"
+              :src="require('../assets/router.png')"
+              style="width: 60px;height: 60px;"
               @mouseover="mouseOver(0)"
               :style="active === 0 ? 'cursor: pointer' : ''"
               @mouseleave="mouseLeave"
@@ -207,13 +207,13 @@
           <div style="width: 20%;height: 100%;float: left">
             <el-image
               :src="require('../assets/5.png')"
-              style="width: 50px;height: 50px;"
+              style="width: 60px;height: 60px;"
             ></el-image>
           </div>
           <div>
             <el-image
-              :src="require('../assets/tuoputu_luyouqi.png')"
-              style="width: 50px;height: 50px;"
+              :src="require('../assets/router.png')"
+              style="width: 60px;height: 60px;"
               @mouseover="mouseOver(0)"
               :style="active === 0 ? 'cursor: pointer' : ''"
               @mouseleave="mouseLeave"
@@ -224,25 +224,25 @@
         <div class="floor">
           <el-image
             :src="require('../assets/3.png')"
-            style="width: 50px;height: 50px;"
+            style="width: 60px;height: 60px;"
           ></el-image>
         </div>
         <div class="floor">
           <el-image
             :src="require('../assets/switch.png')"
-            style="width: 50px;height: 50px;"
+            style="width: 60px;height: 60px;"
           ></el-image>
         </div>
         <div class="floor">
           <el-image
             :src="require('../assets/4.png')"
-            style="width: 50px;height: 50px;"
+            style="width: 60px;height: 60px;"
           ></el-image>
         </div>
         <div class="floor">
           <el-image
             :src="require('../assets/tuoputu_taishidiannao.png')"
-            style="width: 50px;height: 50px;"
+            style="width: 60px;height: 60px;"
             @mouseover="mouseOver(1)"
             :style="active === 1 ? 'cursor: pointer' : ''"
             @mouseleave="mouseLeave"
@@ -250,7 +250,7 @@
           ></el-image>
           <el-image
             :src="require('../assets/tuoputu_taishidiannao.png')"
-            style="width: 50px;height: 50px;"
+            style="width: 60px;height: 60px;"
             @mouseover="mouseOver(2)"
             :style="active === 2 ? 'cursor: pointer' : ''"
             @mouseleave="mouseLeave"
@@ -258,7 +258,7 @@
           ></el-image>
           <el-image
             :src="require('../assets/tuoputu_taishidiannao.png')"
-            style="width: 50px;height: 50px;"
+            style="width: 60px;height: 60px;"
             @mouseover="mouseOver(3)"
             :style="active === 3 ? 'cursor: pointer' : ''"
             @mouseleave="mouseLeave"
@@ -485,7 +485,7 @@ export default {
   padding-top: 50px;
 }
 .floor {
-  height: 50px;
+  height: 60px;
 }
 .interface {
   width: 480px;
