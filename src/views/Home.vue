@@ -1,17 +1,54 @@
 <template>
   <div class="home">
     <div class="main">
+      <div class="menu">
+        <el-menu
+          v-if="isRouterConnect"
+          default-active="1"
+          class="el-menu-vertical-demo"
+          @select="handleSelect"
+        >
+          <el-menu-item index="1">
+            <i class="el-icon-menu"></i>
+            <span slot="title">接口列表</span>
+          </el-menu-item>
+          <el-menu-item index="2">
+            <i class="el-icon-menu"></i>
+            <span slot="title">路由配置</span>
+          </el-menu-item>
+          <el-menu-item index="3" v-if="routerNum === 2">
+            <i class="el-icon-document"></i>
+            <span slot="title">NAT配置</span>
+          </el-menu-item>
+          <el-menu-item index="4" v-if="routerNum === 2">
+            <i class="el-icon-setting"></i>
+            <span slot="title">NAT转换表</span>
+          </el-menu-item>
+          <el-menu-item index="5" v-if="routerNum === 3">
+            <i class="el-icon-setting"></i>
+            <span slot="title">测试连通</span>
+          </el-menu-item>
+        </el-menu>
+      </div>
       <div class="info">
-        <div class="router-info" v-if="isRouterConnect && show === 0">
-          <div class="interface">
-            <div style="text-align: left">
-              <span>Interface Configure</span>
-              <div style="float: right">
-                <el-button type="primary" size="small" @click="disconnect"
-                  >断开连接</el-button
-                >
-              </div>
+        <div
+          class="router-info"
+          v-if="
+            isRouterConnect &&
+              (routerNum === 1 || routerNum === 2 || routerNum === 3)
+          "
+        >
+          <div
+            style="text-align: left;margin-top: 30px;margin-left: 10px;margin-right: 10px"
+          >
+            <span>Router{{ routerNum }}</span>
+            <div style="float: right">
+              <el-button type="primary" size="small" @click="disconnect"
+                >断开连接</el-button
+              >
             </div>
+          </div>
+          <div class="interface" v-if="infoKey === '1'">
             <el-table
               :data="interfaceList"
               class="tb-edit"
@@ -67,10 +104,32 @@
               </el-table-column>
             </el-table>
           </div>
-          <div class="nat" v-if="routerNum === 0">
-            <div style="text-align: left">
-              <span>NAT Configure</span>
+          <div class="router" v-if="infoKey === '2'">
+            <div style="padding: 3px;width: 420px">
+              <el-form
+                label-position="left"
+                label-width="80px"
+                :model="routerConfig"
+                size="small"
+              >
+                <el-form-item label="network">
+                  <el-input v-model="routerConfig.network"></el-input>
+                </el-form-item>
+                <el-form-item label="mask">
+                  <el-input v-model.number="routerConfig.mask"></el-input>
+                </el-form-item>
+                <el-form-item label="next hop">
+                  <el-input v-model="routerConfig.nextHop"></el-input>
+                </el-form-item>
+                <el-form-item>
+                  <el-button type="primary" @click="submitRouter"
+                    >提交</el-button
+                  >
+                </el-form-item>
+              </el-form>
             </div>
+          </div>
+          <div class="nat" v-if="infoKey === '3'">
             <div style="padding: 3px;width: 420px">
               <el-form
                 label-position="left"
@@ -113,7 +172,31 @@
               </el-form>
             </div>
           </div>
-          <div class="ping-box" v-else>
+          <div class="tran" v-if="infoKey === '4'">
+            <el-table
+              :data="natTranList"
+              class="tb-edit"
+              style="width: 100%"
+              highlight-current-row
+            >
+              <el-table-column label="protocol" width="80">
+                <template scope="scope">
+                  <span>{{ scope.row.protocol }}</span>
+                </template>
+              </el-table-column>
+              <el-table-column label="local address" width="120">
+                <template scope="scope">
+                  <span>{{ scope.row.localAddress }}</span>
+                </template>
+              </el-table-column>
+              <el-table-column label="global address" width="120">
+                <template scope="scope">
+                  <span>{{ scope.row.globalAddress }}</span>
+                </template>
+              </el-table-column>
+            </el-table>
+          </div>
+          <div class="ping-box" v-if="infoKey === '5'">
             <el-form :inline="true">
               <el-form-item label="ping">
                 <el-input v-model="pingIp"></el-input>
@@ -168,10 +251,18 @@
           <el-image
             :src="require('../assets/tuoputu_taishidiannao.png')"
             style="width: 60px;height: 60px;"
-            @mouseover="mouseOver(4)"
-            :style="active === 4 ? 'cursor: pointer' : ''"
-            @mouseleave="mouseLeave"
-            @click="showCard(4)"
+          ></el-image>
+        </div>
+        <div class="floor">
+          <el-image
+            :src="require('../assets/3.png')"
+            style="width: 60px;height: 60px;"
+          ></el-image>
+        </div>
+        <div class="floor">
+          <el-image
+            :src="require('../assets/switch.png')"
+            style="width: 60px;height: 60px;"
           ></el-image>
         </div>
         <div class="floor">
@@ -184,6 +275,10 @@
           <el-image
             :src="require('../assets/router.png')"
             style="width: 60px;height: 60px;"
+            @mouseover="mouseOver(4)"
+            :style="active === 4 ? 'cursor: pointer' : ''"
+            @mouseleave="mouseLeave"
+            @click="showCard(1)"
           ></el-image>
         </div>
         <div class="floor">
@@ -201,7 +296,7 @@
               @mouseover="mouseOver(0)"
               :style="active === 0 ? 'cursor: pointer' : ''"
               @mouseleave="mouseLeave"
-              @click="showCard(0, 0)"
+              @click="showCard(2)"
             ></el-image>
           </div>
           <div style="width: 20%;height: 100%;float: left">
@@ -217,53 +312,9 @@
               @mouseover="mouseOver(0)"
               :style="active === 0 ? 'cursor: pointer' : ''"
               @mouseleave="mouseLeave"
-              @click="showCard(0, 1)"
+              @click="showCard(3)"
             ></el-image>
           </div>
-        </div>
-        <div class="floor">
-          <el-image
-            :src="require('../assets/3.png')"
-            style="width: 60px;height: 60px;"
-          ></el-image>
-        </div>
-        <div class="floor">
-          <el-image
-            :src="require('../assets/switch.png')"
-            style="width: 60px;height: 60px;"
-          ></el-image>
-        </div>
-        <div class="floor">
-          <el-image
-            :src="require('../assets/4.png')"
-            style="width: 60px;height: 60px;"
-          ></el-image>
-        </div>
-        <div class="floor">
-          <el-image
-            :src="require('../assets/tuoputu_taishidiannao.png')"
-            style="width: 60px;height: 60px;"
-            @mouseover="mouseOver(1)"
-            :style="active === 1 ? 'cursor: pointer' : ''"
-            @mouseleave="mouseLeave"
-            @click="showCard(1)"
-          ></el-image>
-          <el-image
-            :src="require('../assets/tuoputu_taishidiannao.png')"
-            style="width: 60px;height: 60px;"
-            @mouseover="mouseOver(2)"
-            :style="active === 2 ? 'cursor: pointer' : ''"
-            @mouseleave="mouseLeave"
-            @click="showCard(2)"
-          ></el-image>
-          <el-image
-            :src="require('../assets/tuoputu_taishidiannao.png')"
-            style="width: 60px;height: 60px;"
-            @mouseover="mouseOver(3)"
-            :style="active === 3 ? 'cursor: pointer' : ''"
-            @mouseleave="mouseLeave"
-            @click="showCard(3)"
-          ></el-image>
         </div>
       </div>
     </div>
@@ -289,6 +340,11 @@ export default {
         netmask: "",
         inside: [],
         outside: []
+      },
+      routerConfig: {
+        network: "",
+        mask: "",
+        nextHop: ""
       },
       show: -1,
       pingIp: "",
@@ -317,7 +373,15 @@ export default {
       insideArray: [false, false, false, false],
       outsideArray: [false, false, false, false],
       interfaceMap: new Map(),
-      routerNum: -1
+      routerNum: -1,
+      infoKey: "1",
+      natTranList: [
+        {
+          protocol: "",
+          localAddress: "",
+          globalAddress: ""
+        }
+      ]
     };
   },
   /*created() {
@@ -380,8 +444,21 @@ export default {
             message: "配置成功",
             type: "success"
           });
+          this.natTranList = response.data.data;
         }
       });
+    },
+    submitRouter() {
+      this.axios
+        .post("/command/configRouter", this.routerConfig)
+        .then(response => {
+          if (response.data.code === 200) {
+            this.$message({
+              message: "配置成功",
+              type: "success"
+            });
+          }
+        });
     },
     disconnect() {
       this.axios.post("/command/disconnect").then(response => {
@@ -423,13 +500,16 @@ export default {
       //清空样式
       this.active = -1;
     },
-    showCard(index, routerNum) {
-      this.show = index;
-      if (index === 0) {
-        this.routerNum = routerNum;
-      }
-      if (index !== 0) {
-        this.showPC = index;
+    showCard(index) {
+      if (this.isRouterConnect) {
+        this.$message({
+          message: "请先断开当前连接",
+          type: "error"
+        });
+      } else {
+        this.show = 0;
+        this.routerNum = index;
+        this.infoKey = "1";
       }
     },
     async ping() {
@@ -447,11 +527,15 @@ export default {
             });
           } else {
             this.$message({
-              message: "error",
+              message: "failure",
               type: "error"
             });
           }
         });
+    },
+    handleSelect(key) {
+      console.log(typeof key);
+      this.infoKey = key;
     }
   }
 };
@@ -460,19 +544,24 @@ export default {
 <style>
 .home {
   margin-top: 20px;
-  margin-left: 250px;
+  margin-left: 150px;
 }
 .main {
-  width: 1000px;
+  width: 1200px;
   height: 660px;
   border: #2c3e50 1px solid;
+}
+.menu {
+  width: 180px;
+  float: left;
+  margin-left: 10px;
+  margin-top: 10px;
 }
 .info {
   width: 500px;
   height: 640px;
   float: left;
   border: #2c3e50 1px solid;
-  margin-left: 10px;
   margin-top: 10px;
 }
 .topology {
@@ -494,7 +583,20 @@ export default {
   margin-left: 10px;
   padding: 3px;
 }
+.tran {
+  width: 480px;
+  height: 280px;
+  margin-top: 10px;
+  margin-left: 10px;
+  padding: 3px;
+}
 .nat {
+  width: 380px;
+  height: 180px;
+  margin-top: 30px;
+  margin-left: 10px;
+}
+.router {
   width: 380px;
   height: 180px;
   margin-top: 30px;
@@ -503,7 +605,7 @@ export default {
 .ping-box {
   width: 380px;
   height: 180px;
-  margin-top: 30px;
+  margin-top: 10px;
   margin-left: 10px;
   padding-top: 50px;
 }
@@ -525,9 +627,5 @@ export default {
   align-content: center;
   padding: 10px;
   margin-top: 5px;
-}
-.ping-box {
-  margin-top: 10px;
-  margin-left: 10px;
 }
 </style>
