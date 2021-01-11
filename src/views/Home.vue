@@ -331,7 +331,7 @@ export default {
         inside: [],
         outside: []
       },
-      routerConfig: {
+      routeConfig: {
         network: "",
         mask: "",
         nextHop: ""
@@ -486,7 +486,7 @@ export default {
     },
     submitRouter() {
       this.axios
-        .post("/command/configRouter", this.routerConfig)
+        .post("/command/configRoute", this.routeConfig)
         .then(response => {
           if (response.data.code === 200) {
             this.$message({
