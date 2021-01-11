@@ -119,17 +119,17 @@
               <el-form
                 label-position="left"
                 label-width="80px"
-                :model="routerConfig"
+                :model="routeConfig"
                 size="small"
               >
                 <el-form-item label="network">
-                  <el-input v-model="routerConfig.network"></el-input>
+                  <el-input v-model="routeConfig.network"></el-input>
                 </el-form-item>
                 <el-form-item label="mask">
-                  <el-input v-model.number="routerConfig.mask"></el-input>
+                  <el-input v-model.number="routeConfig.mask"></el-input>
                 </el-form-item>
                 <el-form-item label="next hop">
-                  <el-input v-model="routerConfig.nextHop"></el-input>
+                  <el-input v-model="routeConfig.nextHop"></el-input>
                 </el-form-item>
                 <el-form-item>
                   <el-button type="primary" @click="submitRouter"
