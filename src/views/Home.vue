@@ -47,6 +47,16 @@
                 >断开连接</el-button
               >
             </div>
+            <div v-if="!isTelnetMode" style="float: right">
+              <el-button type="primary" size="small" @click="showTelnet"
+                >Telnet</el-button
+              >
+            </div>
+            <div v-else style="float: right">
+              <el-button type="primary" size="small" @click="returnRouter"
+                >返回</el-button
+              >
+            </div>
           </div>
           <div class="interface" v-if="infoKey === '1'">
             <el-table
@@ -225,26 +235,6 @@
             </el-form-item>
           </el-form>
         </div>
-        <div
-          class="pc-info"
-          v-else-if="show === 1 || show === 2 || show === 3 || show === 4"
-        >
-          <div>
-            <span>PC{{ showPC }} Info</span>
-          </div>
-          <div class="info-box">
-            <span v-if="show !== 4">IP: 10.1.0.{{ show + 1 }}</span>
-            <span v-else>IP: 192.168.3.2</span>
-          </div>
-          <div class="info-box">
-            <span v-if="show !== 4">netmask: 255.255.0.0</span>
-            <span v-else>netmask: 255.255.255.0</span>
-          </div>
-          <div class="info-box">
-            <span v-if="show !== 4">gateway: 10.1.0.1</span>
-            <span v-else>gateway: 192.168.3.1</span>
-          </div>
-        </div>
       </div>
       <div class="topology">
         <div class="floor">
@@ -381,7 +371,11 @@ export default {
           localAddress: "",
           globalAddress: ""
         }
-      ]
+      ],
+      isTelnetMode: false,
+      RouterA: "192.168.1.1",
+      RouterB: "10.0.0.1",
+      RouterC: "10.0.0.2"
     };
   },
   /*created() {
@@ -392,13 +386,44 @@ export default {
   components: {},
   methods: {
     async connect() {
-      await this.axios.get("/command/connectRouter", {
-        params: {
-          hostName: this.hostName,
-          port: 23
+      if (!this.isTelnetMode) {
+        await this.axios.get("/command/connectRouter", {
+          params: {
+            hostName: this.hostName,
+            port: 23
+          }
+        });
+      } else {
+        await this.axios.get("/command/telnet", {
+          params: {
+            hostName: this.hostName
+          }
+        });
+      }
+      this.step = 2;
+    },
+    async returnRouter() {
+      await this.axios.get("/command/interfaceInfo").then(response => {
+        if (response.data.code === 200) {
+          const list = response.data.data;
+          this.interfaceList = list;
+          for (let i = 0; i < list.length; i++) {
+            this.radioArray[i].disable = list[i].state === "0";
+            this.interfaceMap.set(list[i].name, i);
+          }
+          this.isTelnetMode = false;
+          this.routerNum = 2;
         }
       });
-      this.step = 2;
+    },
+    showTelnet() {
+      this.isTelnetMode = true;
+      this.isRouterConnect = false;
+      this.step = 1;
+      this.show = 0;
+      console.log(
+        (!this.isRouterConnect || this.isTelnetMode) && this.show === 0
+      );
     },
     async sendPassword() {
       await this.axios
@@ -417,6 +442,17 @@ export default {
               this.interfaceMap.set(list[i].name, i);
             }
             console.log(this.radioArray);
+            this.show = 0;
+            this.infoKey = "1";
+            if (this.hostName === this.RouterA) {
+              this.routerNum = 1;
+            }
+            if (this.hostName === this.RouterB) {
+              this.routerNum = 2;
+            }
+            if (this.hostName === this.RouterC) {
+              this.routerNum = 3;
+            }
           }
         });
     },
