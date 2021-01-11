@@ -28,6 +28,10 @@
             <i class="el-icon-setting"></i>
             <span slot="title">测试连通</span>
           </el-menu-item>
+          <el-menu-item index="6">
+            <i class="el-icon-setting"></i>
+            <span slot="title">路由表</span>
+          </el-menu-item>
         </el-menu>
       </div>
       <div class="info">
@@ -216,6 +220,30 @@
               </el-form-item>
             </el-form>
           </div>
+          <div class="interface" v-if="infoKey === '6'">
+            <el-table
+              :data="routeList"
+              class="tb-edit"
+              style="width: 100%"
+              highlight-current-row
+            >
+              <el-table-column label="type" width="120">
+                <template scope="scope">
+                  <span>{{ scope.row.type }}</span>
+                </template>
+              </el-table-column>
+              <el-table-column label="destination" width="150">
+                <template scope="scope">
+                  <span>{{ scope.row.destination }}</span>
+                </template>
+              </el-table-column>
+              <el-table-column label="nextHop" width="150">
+                <template scope="scope">
+                  <span>{{ scope.row.nextHop }}</span>
+                </template>
+              </el-table-column>
+            </el-table>
+          </div>
         </div>
         <div v-else-if="!isRouterConnect && show === 0">
           <el-form v-if="this.step === 1" :inline="true">
@@ -323,6 +351,7 @@ export default {
       username: "",
       password: "",
       interfaceList: [],
+      routeList: [],
       inputStatus: "none",
       natConfig: {
         network: "",
@@ -572,6 +601,13 @@ export default {
     handleSelect(key) {
       console.log(typeof key);
       this.infoKey = key;
+      if (key === "6") {
+        this.axios.get("/command/routeTable").then(response => {
+          if (response.data.code === 200) {
+            this.routeList = response.data.data;
+          }
+        });
+      }
     }
   }
 };
