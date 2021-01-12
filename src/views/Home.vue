@@ -130,7 +130,7 @@
                   <el-input v-model="routeConfig.network"></el-input>
                 </el-form-item>
                 <el-form-item label="mask">
-                  <el-input v-model.number="routeConfig.mask"></el-input>
+                  <el-input v-model="routeConfig.mask"></el-input>
                 </el-form-item>
                 <el-form-item label="next hop">
                   <el-input v-model="routeConfig.nextHop"></el-input>
@@ -359,6 +359,7 @@ export default {
         netmask: "",
         inside: [],
         outside: []
+
       },
       routeConfig: {
         network: "",
@@ -509,7 +510,7 @@ export default {
             message: "配置成功",
             type: "success"
           });
-          this.natTranList = response.data.data;
+          // this.natTranList = response.data.data;
         }
       });
     },
@@ -608,7 +609,15 @@ export default {
           }
         });
       }
+      if (key === "4") {
+        this.axios.get("/command/natTranslations").then(response => {
+          if (response.data.code === 200) {
+            this.natTranList = response.data.data;
+          }
+        });
+      }
     }
+
   }
 };
 </script>
