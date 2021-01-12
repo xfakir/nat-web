@@ -265,49 +265,50 @@
         </div>
       </div>
       <div class="topology">
-        <div class="floor">
+        <div class="floor" style="position:relative; left: 0px; top: 0px">
           <el-image
-            :src="require('../assets/tuoputu_taishidiannao.png')"
-            style="width: 60px;height: 60px;"
+            :src="require('../assets/pc.png')"
+            style="width: 60px;height: 60px; position:absolute; left: 50px;"
           ></el-image>
         </div>
-        <div class="floor">
+        <div class="floor" style="position:relative; left: 0px; top: 0px">
           <el-image
             :src="require('../assets/3.png')"
-            style="width: 60px;height: 60px;"
+            style="width: 60px;height: 60px; position:absolute; left: 50px;"
           ></el-image>
         </div>
-        <div class="floor">
+        <div class="floor" style="position:relative; left: 0px; top: 0px">
           <el-image
             :src="require('../assets/switch.png')"
-            style="width: 60px;height: 60px;"
+            style="width: 60px;height: 60px; position:absolute; left: 50px;"
           ></el-image>
         </div>
-        <div class="floor">
+        <div class="floor" style="position:relative;">
           <el-image
             :src="require('../assets/1.png')"
-            style="width: 60px;height: 60px;"
+            style="width: 60px;height: 60px; position:absolute; left: 50px;"
           ></el-image>
         </div>
-        <div class="floor">
+        <div class="floor" style="position:relative;">
           <el-image
             :src="require('../assets/router.png')"
-            style="width: 60px;height: 60px;"
+            style="width: 60px;height: 60px; position:absolute; left: 50px;"
             @mouseover="mouseOver(4)"
             :style="active === 4 ? 'cursor: pointer' : ''"
             @mouseleave="mouseLeave"
             @click="showCard(1)"
           ></el-image>
         </div>
-        <div class="floor">
+        <div class="floor" style="position:relative;">
           <el-image
             :src="require('../assets/2.png')"
-            style="width: 60px;height: 60px;"
+            style="width: 60px;height: 60px; position:absolute; left: 50px;"
           ></el-image>
         </div>
-        <div class="floor">
-          <div style="width: 40%;height: 100%;float: left"></div>
-          <div style="width: 20%;height: 100%;float: left">
+        <div class="floor" style="position:relative;">
+          <div
+            style="width: 100px ;height: 100%; position:absolute; left: 25px;"
+          >
             <el-image
               :src="require('../assets/router.png')"
               style="width: 60px;height: 60px;"
@@ -317,13 +318,33 @@
               @click="showCard(2)"
             ></el-image>
           </div>
-          <div style="width: 20%;height: 100%;float: left">
+          <div
+            style="width: 100px ;height: 100%; position:absolute; left: 100px;"
+          >
             <el-image
               :src="require('../assets/5.png')"
               style="width: 60px;height: 60px;"
             ></el-image>
           </div>
-          <div>
+          <div
+            style="width: 100px ;height: 100%; position:absolute; left: 175px;"
+          >
+            <el-image
+              :src="require('../assets/switch.png')"
+              style="width: 60px;height: 60px;"
+            ></el-image>
+          </div>
+          <div
+            style="width: 100px ;height: 100%; position:absolute; left: 250px;"
+          >
+            <el-image
+              :src="require('../assets/5.png')"
+              style="width: 60px;height: 60px;"
+            ></el-image>
+          </div>
+          <div
+            style="width: 100px ;height: 100%; position:absolute; left: 300px;"
+          >
             <el-image
               :src="require('../assets/router.png')"
               style="width: 60px;height: 60px;"
@@ -331,6 +352,20 @@
               :style="active === 0 ? 'cursor: pointer' : ''"
               @mouseleave="mouseLeave"
               @click="showCard(3)"
+            ></el-image>
+          </div>
+        </div>
+        <div class="floor" style="position:relative">
+          <el-image
+            :src="require('../assets/1.png')"
+            style="width: 60px;height: 60px; position:absolute; left:200px"
+          ></el-image>
+        </div>
+        <div class="floor" style="position:relative">
+          <div style="width: 20%;height: 100%;float: right">
+            <el-image
+              :src="require('../assets/pc.png')"
+              style="width: 60px;height: 60px;position:absolute; left:180px"
             ></el-image>
           </div>
         </div>
@@ -358,13 +393,12 @@ export default {
         total: 0,
         netmask: "",
         inside: [],
-        outside: []
-
+        outside: [],
       },
       routeConfig: {
         network: "",
         mask: "",
-        nextHop: ""
+        nextHop: "",
       },
       show: -1,
       pingIp: "",
@@ -375,20 +409,20 @@ export default {
       radioArray: [
         {
           name: "f0/0",
-          disable: false
+          disable: false,
         },
         {
           name: "f0/1",
-          disable: false
+          disable: false,
         },
         {
           name: "s0/0/0",
-          disable: false
+          disable: false,
         },
         {
           name: "s0/0/1",
-          disable: false
-        }
+          disable: false,
+        },
       ],
       insideArray: [false, false, false, false],
       outsideArray: [false, false, false, false],
@@ -399,13 +433,13 @@ export default {
         {
           protocol: "",
           localAddress: "",
-          globalAddress: ""
-        }
+          globalAddress: "",
+        },
       ],
       isTelnetMode: false,
       RouterA: "192.168.1.1",
       RouterB: "10.0.0.1",
-      RouterC: "10.0.0.2"
+      RouterC: "10.0.0.2",
     };
   },
   /*created() {
@@ -420,27 +454,29 @@ export default {
         await this.axios.get("/command/connectRouter", {
           params: {
             hostName: this.hostName,
-            port: 23
-          }
+            port: 23,
+          },
         });
       } else {
         await this.axios.get("/command/telnet", {
           params: {
-            hostName: this.hostName
-          }
+            hostName: this.hostName,
+          },
         });
       }
       this.step = 2;
     },
     async returnRouter() {
-      await this.axios.get("/command/interfaceInfo").then(response => {
+      await this.axios.get("/command/interfaceInfo").then((response) => {
         if (response.data.code === 200) {
           const list = response.data.data;
           this.interfaceList = list;
-          for (let i = 0; i < list.length; i++) {
-            this.radioArray[i].disable = list[i].state === "0";
-            this.interfaceMap.set(list[i].name, i);
-          }
+          // for (let i = 0; i < list.length; i++) {
+          //   this.radioArray[i].disable = list[i].state === "0";
+          //   this.interfaceMap.set(list[i].name, i);
+          // }
+          this.activeIndex = "1";
+          this.infoKey = "1";
           this.isTelnetMode = false;
           this.routerNum = 2;
         }
@@ -459,10 +495,10 @@ export default {
       await this.axios
         .get("/command/password", {
           params: {
-            password: this.password
-          }
+            password: this.password,
+          },
         })
-        .then(response => {
+        .then((response) => {
           if (response.data.code === 200) {
             const list = response.data.data;
             this.interfaceList = list;
@@ -492,11 +528,11 @@ export default {
     handleEdit(index) {
       this.axios
         .post("/command/configInterface", this.interfaceList[index])
-        .then(response => {
+        .then((response) => {
           if (response.data.code === 200) {
             this.$message({
               message: "修改成功",
-              type: "success"
+              type: "success",
             });
           }
         });
@@ -504,11 +540,11 @@ export default {
     },
     onSubmit() {
       console.log(this.natConfig);
-      this.axios.post("/command/configNat", this.natConfig).then(response => {
+      this.axios.post("/command/configNat", this.natConfig).then((response) => {
         if (response.data.code === 200) {
           this.$message({
             message: "配置成功",
-            type: "success"
+            type: "success",
           });
           // this.natTranList = response.data.data;
         }
@@ -517,21 +553,21 @@ export default {
     submitRouter() {
       this.axios
         .post("/command/configRoute", this.routeConfig)
-        .then(response => {
+        .then((response) => {
           if (response.data.code === 200) {
             this.$message({
               message: "配置成功",
-              type: "success"
+              type: "success",
             });
           }
         });
     },
     disconnect() {
-      this.axios.post("/command/disconnect").then(response => {
+      this.axios.post("/command/disconnect").then((response) => {
         if (response.data.code === 200) {
           this.$message({
             message: "已断开连接",
-            type: "success"
+            type: "success",
           });
           this.isRouterConnect = false;
           this.step = 1;
@@ -570,7 +606,7 @@ export default {
       if (this.isRouterConnect) {
         this.$message({
           message: "请先断开当前连接",
-          type: "error"
+          type: "error",
         });
       } else {
         this.show = 0;
@@ -582,19 +618,19 @@ export default {
       await this.axios
         .get("/command/ping", {
           params: {
-            ip: this.pingIp
-          }
+            ip: this.pingIp,
+          },
         })
-        .then(response => {
+        .then((response) => {
           if (response.data.code === 200) {
             this.$message({
               message: "success",
-              type: "success"
+              type: "success",
             });
           } else {
             this.$message({
               message: "failure",
-              type: "error"
+              type: "error",
             });
           }
         });
@@ -603,22 +639,21 @@ export default {
       console.log(typeof key);
       this.infoKey = key;
       if (key === "6") {
-        this.axios.get("/command/routeTable").then(response => {
+        this.axios.get("/command/routeTable").then((response) => {
           if (response.data.code === 200) {
             this.routeList = response.data.data;
           }
         });
       }
       if (key === "4") {
-        this.axios.get("/command/natTranslations").then(response => {
+        this.axios.get("/command/natTranslations").then((response) => {
           if (response.data.code === 200) {
             this.natTranList = response.data.data;
           }
         });
       }
-    }
-
-  }
+    },
+  },
 };
 </script>
 
