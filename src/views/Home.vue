@@ -471,11 +471,10 @@ export default {
         if (response.data.code === 200) {
           const list = response.data.data;
           this.interfaceList = list;
-          // for (let i = 0; i < list.length; i++) {
-          //   this.radioArray[i].disable = list[i].state === "0";
-          //   this.interfaceMap.set(list[i].name, i);
-          // }
-          this.activeIndex = "1";
+          for (let i = 0; i < list.length; i++) {
+            this.radioArray[i].disable = list[i].state === "0";
+            this.interfaceMap.set(list[i].name, i);
+          }
           this.infoKey = "1";
           this.isTelnetMode = false;
           this.routerNum = 2;
